@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block content %}	
+	<div class="main">
+		<center>
+			<h1>
+				NetworkPulse: TCP Service Monitor
+				<br />
+			</h1>
+		</center>
+		<div class="sort_menu">
+			<a href="/" title="Do not sort">Do not sort</a> |
+			<a href="?sort=by_status" id="sort_by_status" title="Sort by status">Sort by status</a> |
+			<a href="#" title="Refresh page" onclick="location.reload();">Refresh</a>
+			<span style="padding-left: 20px;">
+				{% set down = [] %}
+				{% set up = [] %}
+				{% set dis = [] %}
+				{% for s in services %}
+					{% if s.3 == 1 %}
+						{% if s.2 == 1 and s.11 == 1 and s.10 == 1 %}
+							{% if  up.append('1') %} {% endif %}	
+						{% else %}
+							{% if  down.append('1') %} {% endif %}	
+						{% endif %}
+					{% else %}
+						{% if  dis.append(s.7) %} {% endif %}		
+					{% endif %}
+				{% endfor %}
+				<b>Counting state: UP: {{up|length}}, DOWN: {{down|length}}, Disabled: {{dis|length}}</b>
+			<span>
+		</div>
+		{% set group = [] %}
+		{% set group_prev = [] %}
+		{% for s in services %}
+			{% if s.7 %}
+				{% if s.7 not in group %}
+					<div class="group">
+						<div class="group_name">
+							{{ s.7 }}
+						</div>
+				
+				{% endif %}
+				{% if  group.append(s.7) %} {% endif %}			
+			{% else %}
+				{% if 'None' not in group %}
+					<div class="group">
+						<div class="group_name">
+							No group
+						</div>
+				{% if  group.append('None') %} {% endif %}
+			{% endif %}
+			{% endif %}
+			{% if s.3 == 1 %}
+				{% if s.2 == 1 and s.11 == 1 and s.10 == 1 %}
+					<div class="services good">
+				{% else %}
+					<div class="services err">
+				{% endif %}
+			{% else %}
+				<div class="services dis">
+			{% endif %}
+					<div class="ip">
+						{{s.0}}:{{s.1}}
+					</div>
+					<div class="desc">
+						{% if s.4 != 'None' %}
+							<b>{{s.4}}</b>
+						{% else %}
+							Desc: None
+						{% endif %}
+					</div>		
+					<div class="desc">
+						{% if s.2 == 1 %}
+							Uptime: <script>document.write(secToTime({{s.6}}));</script>
+						{% elif s.2 == 0 %}
+							Downtime: <script>document.write(secToTime({{s.6}}));</script>
+						{% else %}
+							NA
+						{% endif %}
+					</div>					
+					<div class="res_time">
+						Resp time:
+						{% if s.5 %}
+							{{s.5|truncate(9)}}ms
+						{% else %}
+							NA
+						{% endif %}
+					</div>					
+					{% if s.3 == 1 %}
+						{% if s.2 == 1 and s.10 == 1 and s.12 == 1 %}
+							<div class="up">
+								<center>
+									UP
+								</center>
+							</div>
+						{% elif s.10 == 0 %}
+							<div class="down" style="font-size: 19px;padding-top: 7px;">
+								<center>
+									HTTP IS FAILURE
+								</center>
+							</div>
+						{% elif s.12 == 0 %}
+							<div class="down" style="font-size: 22px;padding-top: 7px;">
+								<center>
+									BODY IS FAILURE
+								</center>
+							</div>
+						{% else %}
+							<div class="down" style="font-size: 22px;padding-top: 7px;">
+								<center>
+									PORT IS DOWN
+								</center>
+							</div>
+						{% endif %}
+					{% else %}
+						<div class="disable">
+							<center>
+								Disabled
+							</center>
+						</div>
+					{% endif %}
+				</div>
+				{% if s.7 not in group %}
+					</div>
+				{% endif %}
+		{% endfor %}
+	</div>
+	<div class="bottom">
+		<a href="https://github.com/VaibhavDaveDev/NetworkPulse" target="_blank" title="Github repo">NetworkPulse on GitHub</a>
+	</div>
+	{% if sort == 'by_status' %}
+		<script>
+			sort_by_status();
+		</script>
+	{% endif %}
+{% endblock %}

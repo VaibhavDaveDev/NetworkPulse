@@ -1,0 +1,19 @@
+[Unit]
+Description=NetworkPulse TCP Service Monitor
+After=syslog.target network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/NetworkPulse
+ExecStart=/opt/NetworkPulse/networkpulse.py
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=networkpulse
+
+RestartSec=2s
+Restart=on-failure
+TimeoutStopSec=1s
+
+[Install]
+WantedBy=multi-user.target
